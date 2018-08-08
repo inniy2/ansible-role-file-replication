@@ -1,0 +1,27 @@
+---
+#- name: Check if task is working
+#shell: hostname -f
+#register: full_hostname
+
+#- debug: var=full_hostname.stdout_lines
+
+- name: Apply file-base-change-master.sql.j2 template
+  template:
+    src: file-base-change-master.sql.j2
+    dest: /MYSQL/{{ mysql_instance_name }}/data/change-master.sql
+    mode: 0755
+    owner: mysql
+    group: mysql
+
+- name: Start slave
+  shell: "{{ mysql_client }} -S{{ mysql_socket }} -p{{ mysql_root_db_pass }} < /MYSQL/{{ mysql_instance_name }}/data/change-master.sql"
+  register: mysql_start_slave
+
+- debug: var=mysql_start_slave.stdout_lines
+
+- name: Check the slave status
+  command: >
+    {{ mysql_client }} -S{{ mysql_socket }} -p{{ mysql_root_db_pass }}  -e 'show slave status\G'
+  register: mysql_slave_status
+
+- debug: var=mysql_slave_status.stdout_lines

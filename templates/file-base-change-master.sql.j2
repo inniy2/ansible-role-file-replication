@@ -1,0 +1,16 @@
+use mysql;
+
+stop slave;
+
+reset slave all;
+
+CHANGE MASTER TO
+   MASTER_HOST='{{ mysql_host_master_host | default('hostname') }}'
+ , MASTER_USER='{{ mysql_host_master_user | default('repl') }}'
+ , MASTER_PASSWORD='{{ mysql_host_master_password | default('rep1ica') }}'
+ , MASTER_PORT={{ mysql_host_master_port | default('3301') }}
+ , MASTER_LOG_FILE='{{ mysql_host_master_log_file | default('binarylog.000001') }}'
+ , MASTER_LOG_POS={{ mysql_host_master_log_pos | default('154') }}
+;
+
+start slave;
